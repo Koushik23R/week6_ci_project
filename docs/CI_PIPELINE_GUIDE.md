@@ -2,7 +2,7 @@
 
 ## 1. Pipeline Overview
 
-This document details the CI pipeline setup using GitHub Actions for the `week6_ci_project` repository. The workflow automates code linting, automated testing, coverage tracking, and build verification on every commit pushed to `main`.
+This document details the CI pipeline setup using GitHub Actions for the `week6_ci_project` repository. The workflow uses Python 3.11 to automate code linting, testing, coverage enforcement, and coverage artifact upload on every push and on pull requests targeting `main`.
 
 ---
 
@@ -14,7 +14,6 @@ The following GitHub Actions workflow automatically checks code quality and runs
 
     on:
       push:
-        branches: [ "main" ]
       pull_request:
         branches: [ "main" ]
 
@@ -34,7 +33,7 @@ The following GitHub Actions workflow automatically checks code quality and runs
         - name: Install Dependencies
           run: |
             python -m pip install --upgrade pip
-            pip install flake8 pytest pytest-cov
+            pip install -r requirements.txt
 
         - name: Step 1 - Code Quality & Linting Check (flake8)
           run: |
@@ -43,18 +42,26 @@ The following GitHub Actions workflow automatically checks code quality and runs
 
         - name: Step 2 - Execute Automated Test Suite & Coverage Report
           run: |
-            pytest tests/ -v --cov=src/ml_pipeline --cov-report=term-missing --cov-report=xml
+            pytest tests/ -v --cov=src/ml_pipeline --cov-report=term-missing --cov-report=xml --cov-fail-under=95
+
+        - name: Step 3 - Upload Coverage Report
+          if: always()
+          uses: actions/upload-artifact@v4
+          with:
+            name: coverage-report
+            path: coverage.xml
 
 ---
 
 ## 3. How to Trigger and Verify Pipeline
 
-1. **Trigger via Git Commit:** Push any commit to the `main` branch. GitHub Actions will automatically initiate a workflow run under the **Actions** tab of the repository.
+1. **Trigger via Git Commit:** Push any commit to any branch. GitHub Actions will automatically initiate a workflow run under the **Actions** tab. Pull requests targeting `main` also trigger the workflow.
 
 2. **Pipeline Pass Criteria:**
    - Flake8 checks return 0 syntax or PEP 8 style errors.
    - All 10 pytest cases pass.
-   - Test coverage exceeds 95%.
+   - Test coverage is at least 95%.
+   - `coverage.xml` is uploaded as the `coverage-report` artifact.
 
 ---
 
@@ -68,4 +75,20 @@ The CI pipeline follows these automated stages:
 
 ## 5. Expected Outcome
 
-A successful workflow run verifies that the project can be tested automatically in a clean Ubuntu environment. The pipeline ensures consistent code quality, validates the automated test suite, and generates a coverage report for the `ml_pipeline` source code.
+A successful workflow run verifies that the project can be tested automatically in a clean Ubuntu environment. The pipeline fails if linting, tests, or coverage requirements fail, and generates and uploads a coverage report for the `ml_pipeline` source code.
+
+## Reproducing the Environment Locally
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+flake8 src tests
+pytest tests/ -v --cov=src/ml_pipeline --cov-report=term-missing --cov-fail-under=95
+```
+
+## CI Verification and Troubleshooting
+
+The CI workflow was verified through GitHub Actions runs. Initial setup required review of the project structure, dependencies, and workflow configuration so local commands and the CI environment matched. Successful runs confirmed Python 3.11 setup, dependency installation from `requirements.txt`, Flake8, pytest, the 95% coverage threshold, `coverage.xml` generation, and `coverage-report` artifact upload.
+
+To review logs, open the repository, select **Actions**, choose **Continuous Integration Pipeline**, open a workflow run and the `build-and-test` job, then inspect each step. Download the `coverage-report` artifact from the run's **Artifacts** section.

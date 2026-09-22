@@ -2,10 +2,12 @@
 
 ## Environment Specifications
 
-- **Python Version:** Python 3.13.3
+- **Local Python Version:** Python 3.13.3
+- **CI Python Version:** Python 3.11
 - **Test Framework:** `pytest` 9.1.1 + `pytest-cov` 7.1.0
 - **Linter:** `flake8`
-- **Execution Command:** `pytest tests/ -v --cov=src/ml_pipeline --cov-report=term-missing`
+- **Execution Command:** `pytest tests/ -v --cov=src/ml_pipeline --cov-report=term-missing --cov-fail-under=95`
+- **Dependencies:** Installed with `pip install -r requirements.txt`
 
 ---
 
@@ -61,4 +63,8 @@
 
 ## Conclusion
 
-The automated test suite completed successfully with **10 out of 10 tests passing** and no failures or errors. The project achieved **98% code coverage**, while Flake8 reported **zero linting errors or warnings**. These results confirm that the tested functionality is working as expected and meets the defined code-quality and testing requirements.
+The automated test suite completed successfully with **10 out of 10 tests passing** and no failures or errors. The project achieved **98% code coverage**, exceeding the enforced CI minimum of 95%, while Flake8 reported **zero linting errors or warnings**. CI generates `coverage.xml` and uploads it as the `coverage-report` artifact. These results confirm that the tested functionality is working as expected and meets the defined code-quality and testing requirements.
+
+## CI Verification
+
+The final GitHub Actions workflow verifies checkout, Python 3.11 setup, dependency installation from `requirements.txt`, Flake8 linting, pytest execution, coverage generation, the 95% threshold, and coverage artifact upload. A failed lint, test, or coverage check causes the workflow to fail.

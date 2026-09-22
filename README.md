@@ -1,6 +1,6 @@
 # AI/ML Machine Learning Pipeline with Continuous Integration (CI)
 
-An enterprise-ready Python ML feature processing and evaluation engine integrated with a GitHub Actions CI pipeline for automated code linting, unit testing, and 98% coverage tracking.
+A Python ML feature processing and evaluation engine integrated with GitHub Actions for automated linting, testing, coverage enforcement, and coverage artifact upload.
 
 ---
 
@@ -43,19 +43,31 @@ An enterprise-ready Python ML feature processing and evaluation engine integrate
 
     flake8 src tests
 
+### Create and Reproduce the CI Environment
+
+    python -m venv venv
+
+On Windows, activate it with:
+
+    venv\Scripts\activate
+
+Install the same declared dependencies used by CI:
+
+    pip install -r requirements.txt
+
 ### Test Suite & Coverage
 
-    pytest tests/ -v --cov=src/ml_pipeline --cov-report=term-missing
+    pytest tests/ -v --cov=src/ml_pipeline --cov-report=term-missing --cov-fail-under=95
 
 ---
 
 ## CI Pipeline Summary
 
-The project uses GitHub Actions to automate the following development workflow:
+The project uses GitHub Actions with Python 3.11 to automate the following development workflow:
 
-**Code Push / Pull Request → Repository Checkout → Python Environment Setup → Dependency Installation → Flake8 Linting → Automated Testing → Coverage Analysis**
+**Every Push / Pull Request to main → Repository Checkout → Python 3.11 Setup → requirements.txt Installation → Flake8 Linting → Pytest and Coverage → Coverage Artifact Upload**
 
-The CI pipeline helps ensure that code quality and automated tests are verified consistently before changes are accepted into the main branch.
+The workflow runs on every push and on pull requests targeting `main`. Flake8, pytest, and pytest-cov are installed from `requirements.txt`. The pipeline fails when linting, tests, or the minimum 95% coverage threshold fails. The generated `coverage.xml` file is uploaded as the `coverage-report` artifact.
 
 ---
 
@@ -66,6 +78,17 @@ The CI pipeline helps ensure that code quality and automated tests are verified 
 | **Automated Tests** | 10 |
 | **Tests Passed** | 10 |
 | **Test Failures** | 0 |
-| **Code Coverage** | 98% |
+| **Code Coverage** | 98% (minimum enforced: 95%) |
 | **Flake8 Errors** | 0 |
 | **CI Status** | **PASS** |
+
+## Viewing CI Logs and Artifacts
+
+1. Open the repository on GitHub and select the **Actions** tab.
+2. Select the **Continuous Integration Pipeline** workflow and open a run.
+3. Open the `build-and-test` job to review checkout, Python setup, dependency installation, linting, testing, coverage, and artifact-upload steps.
+4. Download `coverage-report` from the workflow run's **Artifacts** section.
+
+## CI Verification and Troubleshooting
+
+The workflow was verified through GitHub Actions runs. During initial setup, the project structure, dependencies, and CI configuration were reviewed after the first verification run. Subsequent runs confirmed successful Python 3.11 setup, installation from `requirements.txt`, Flake8 checks, automated tests, coverage enforcement, `coverage.xml` generation, and artifact upload.
