@@ -33,4 +33,4 @@ jobs:
 
     - name: Step 2 - Execute Automated Test Suite & Coverage Report
       run: |
-        pytest tests/ -v --cov=src/ml_pipeline --cov-report=term-missing --cov-report=xml
+        pytest tests/ -v --cov=src/ml_pipeline --cov-report=term-missing --cov-report=xml --cov-fail-under=95
