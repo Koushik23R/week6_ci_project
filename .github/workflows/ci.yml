@@ -34,3 +34,10 @@ jobs:
     - name: Step 2 - Execute Automated Test Suite & Coverage Report
       run: |
         pytest tests/ -v --cov=src/ml_pipeline --cov-report=term-missing --cov-report=xml --cov-fail-under=95
+
+    - name: Step 3 - Upload Coverage Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage.xml
